@@ -71,6 +71,10 @@
     const input = await faceapi.fetchImage(imgEl.src);
 
     descriptors[`desc${which}`] = await faceapi.computeFaceDescriptor(input);
+    if (!await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor()) {
+      alert("That's not human, mate!");
+    }
+
     updateResult();
 
     // Stop the video stream
@@ -88,6 +92,9 @@
       imgEl.src = event.target.result;
       const input = await faceapi.fetchImage(event.target.result);
       descriptors[`desc${which}`] = await faceapi.computeFaceDescriptor(input);
+      if (!await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor()) {
+        alert("That's not human, mate!");
+      }
       updateResult();
     }
 
@@ -103,6 +110,8 @@
 
   async function run() {
     await faceapi.loadFaceRecognitionModel('/');
+    await faceapi.loadFaceLandmarkModel('/');
+    await faceapi.loadSsdMobilenetv1Model('/');
     $('#loader').hide();
 
     startVideo(1);
@@ -112,7 +121,7 @@
     renderNavBar('#navbar', 'bbt_face_similarity');
 
     $('#capture1').on('click', () => captureImage(1));
-    
+
     $('#upload2').on('change', (event) => {
       const file = event.target.files[0];
       if (file) {
